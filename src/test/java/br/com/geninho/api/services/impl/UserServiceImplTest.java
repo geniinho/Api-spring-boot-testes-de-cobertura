@@ -3,6 +3,7 @@ package br.com.geninho.api.services.impl;
 import br.com.geninho.api.domain.User;
 import br.com.geninho.api.domain.dto.UserDTO;
 import br.com.geninho.api.repositories.UserRepository;
+import br.com.geninho.api.services.exceptions.DataIntegratyViolationException;
 import br.com.geninho.api.services.exceptions.ObjectNotFoundException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -99,6 +100,22 @@ class UserServiceImplTest {
         Assertions.assertEquals(NAME, response.getName());
         Assertions.assertEquals(EMAIL, response.getEmail());
         Assertions.assertEquals(PASSWORD, response.getPassword());
+
+    }
+
+    @Test
+    void whenCreateThenReturnAnDataIntegrityVaiolationException() {
+
+        Mockito.when(repository.findByEmail(Mockito.anyString())).thenReturn(optionalUser);
+
+        try{
+            optionalUser.get().setId(2);
+            service.create(userDTO);
+        } catch (Exception ex){
+            Assertions.assertEquals(DataIntegratyViolationException.class, ex.getClass());
+            Assertions.assertEquals("E-mail já cadastrado", ex.getMessage());
+        }
+
 
     }
 
